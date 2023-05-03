@@ -10,7 +10,14 @@ import ButtonField from "./components/ButtonField.vue";
 export default {
   name: "App",
   components: {
-    ButtonField
-  }
+    ButtonField,
+  },
 };
 </script>
+
+<style>
+body {
+  background-color: lightgray;
+  overflow: hidden;
+}
+</style>
