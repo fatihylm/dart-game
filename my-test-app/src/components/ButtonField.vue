@@ -1,61 +1,39 @@
 <template>
-    <div class="dart-scorer">
-      <p>DARTSCORER<br>
-        PLAYER 1 ALWAYS STARTS
-      </p>
-      <div class="scoreboard">
-        <div class="player" v-for="(player, index) in players" :key="index">
-          <h1>{{ player.name }}</h1>
-          <div class="score">{{ player.score }}</div>
-        </div>
-      </div>
-      <div class="controls">
-        <div class="player" v-for="(player, index) in players" :key="index">
-          <div class="buttons">
-            <div class="button" @click="subtractScore(player, 1)">1</div>
-            <div class="button" @click="subtractScore(player, 2)">2</div>
-            <div class="button" @click="subtractScore(player, 3)">3</div>
-            <div class="button" @click="subtractScore(player, 4)">4</div>
-          </div>
-          <div class="buttons">
-            <div class="button" @click="subtractScore(player, 5)">5</div>
-            <div class="button" @click="subtractScore(player, 6)">6</div>
-            <div class="button" @click="subtractScore(player, 7)">7</div>
-            <div class="button" @click="subtractScore(player, 8)">8</div>
-          </div>
-          <div class="buttons">
-            <div class="button" @click="subtractScore(player, 9)">9</div>
-            <div class="button" @click="subtractScore(player, 10)">10</div>
-            <div class="button" @click="subtractScore(player, 11)">11</div>
-            <div class="button" @click="subtractScore(player, 12)">12</div>
-            <div class="button" @click="subtractScore(player, 0)">0</div>
-          </div>
-          <div class="buttons">
-            <div class="button" @click="subtractScore(player, 13)">13</div>
-            <div class="button" @click="subtractScore(player, 14)">14</div>
-            <div class="button" @click="subtractScore(player, 15)">15</div>
-            <div class="button" @click="subtractScore(player, 16)">16</div>
-            <div class="button" @click="subtractScore(player, 25)">25</div>
-          </div>
-          <div class="buttons">
-            <div class="button" @click="subtractScore(player, 17)">17</div>
-            <div class="button" @click="subtractScore(player, 18)">18</div>
-            <div class="button" @click="subtractScore(player, 19)">19</div>
-            <div class="button" @click="subtractScore(player, 20)">20</div>
-            <div class="button" @click="subtractScore(player, 50)">50</div>
-          </div>
-          <div class="buttons">
-            <div class="button" @click="doubleScore(player, 0)">Double</div>
-            <div class="button" @click="doubleScore(player, 0)">Triple</div>
-          </div>
-
-          <div v-if="player.winner" class="winner-label">Winner!</div>
-        </div>
-      </div>
-      <div class="reset">
-        <div class="button" @click="resetGame()">RESTART</div>
+  <div class="dart-scorer">
+    <p>
+      DARTSCORER<br />
+      PLAYER 1 ALWAYS STARTS
+    </p>
+    <div class="scoreboard">
+      <div class="player" v-for="(player, index) in players" :key="index">
+        <h1>{{ player.name }}</h1>
+        <div class="score">{{ player.score }}</div>
       </div>
     </div>
+    <div class="controls">
+      <div class="player" v-for="(player, index) in players" :key="index">
+        <div class="buttons" v-for="row in buttons" :key="row">
+          <div
+            class="button"
+            v-for="button in row"
+            :key="button"
+            @click="subtractScore(player, double ? button * 2 : button)"
+          >
+            {{ double ? button * 2 : button }}
+          </div>
+        </div>
+        <div v-if="player.winner" class="winner-label">Winner!</div>
+      </div>
+    </div>
+    <div>
+      <div class="button" @click="doubleButtons">
+        {{ double ? "Double: ON" : "Double: OFF" }}
+      </div>
+    </div>
+    <div class="reset">
+      <div class="button" @click="resetGame()">RESTART</div>
+    </div>
+  </div>
 </template>
 
 <script>
@@ -63,6 +41,14 @@ export default {
   name: "DartScorer",
   data() {
     return {
+      buttons: [
+        [1, 2, 3, 4],
+        [5, 6, 7, 8],
+        [9, 10, 11, 12, 0],
+        [13, 14, 15, 16, 25],
+        [17, 18, 19, 20, 50],
+      ],
+      double: false,
       players: [
         {
           name: "Player 1",
@@ -70,7 +56,6 @@ export default {
           buttonPresses: 0,
           buttonsDisabled: false,
           isCurrentPlayer: true,
-          doubleNextScore: false,
         },
         {
           name: "Player 2",
@@ -99,6 +84,34 @@ export default {
       if (player.score == 0) {
         player.winner = true;
       }
+      if (player.buttonPresses === 3) {
+        alert(`${player.name} has made 3 button presses. Next Player begins`);
+      }
+    },
+    doubleButtons() {
+      this.double = !this.double;
+      // If double is on, double the button values
+      if (this.double) {
+        this.buttons = [
+          [1, 2, 3, 4],
+          [5, 6, 7, 8],
+          [9, 10, 11, 12, 0],
+          [13, 14, 15, 16, 25],
+          [17, 18, 19, 20, 50],
+        ];
+      } else {
+        // If double is off, reset the button values
+      }
+    },
+    buttonPressed(index) {
+      let button = this.buttons[index];
+      if (this.lastDoublePressed) {
+        button.value *= 2;
+        button.doubled = true;
+        this.lastDoublePressed = false;
+      } else {
+        button.doubled = false;
+      }
     },
     changePlayer() {
       this.currentPlayerIndex = (this.currentPlayerIndex + 1) % 2;
@@ -111,27 +124,26 @@ export default {
     disableButtons(player) {
       player.buttonsDisabled = true;
       if (player.subtractScore <= 3) {
-        alert("FERTIG");
+        return;
       }
     },
-    doubleScore(player){
-      player.score *= 2;
-    },
+
     resetGame() {
+      this.currentPlayerIndex = 0;
+      this.players.forEach((player) => {
+        player.score = 0;
+        player.buttonPresses = 0;
+        player.buttonsDisabled = false;
+      });
       this.players.forEach((player) => (player.score = 501));
       this.players.forEach((player) => (player.winner = false));
-    },
-    startGame() {
-      this.players.forEach((player) => (player.score = 501));
-      this.players.forEach((player) => (player.winner = false));
-      this.players.forEach((player) => (player.disableButtons = false));
     },
   },
 };
 </script>
 
 <style>
-p{
+p {
   display: flex;
   justify-content: center;
   font-size: 40px;
@@ -174,6 +186,9 @@ p{
   flex-wrap: wrap;
   justify-content: center;
 }
+.button:active {
+  background-color: aqua;
+}
 .button {
   padding: 20px;
   margin: 8px;
@@ -183,7 +198,7 @@ p{
   color: white;
   cursor: pointer;
 }
-.TESTBUTTON{
+.TESTBUTTON {
   padding: 20px;
   margin: 8px;
   font-size: 24px;
