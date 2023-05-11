@@ -17,8 +17,7 @@
             class="button"
             v-for="button in row"
             :key="button"
-            @click="subtractScore(player, double ? button * 2 : button)"
-          >
+            @click="subtractScore(player, double ? button * 2 : button)">
             {{ double ? button * 2 : button }}
           </div>
         </div>
@@ -28,6 +27,9 @@
     <div>
       <div class="button" @click="doubleButtons">
         {{ double ? "Double: ON" : "Double: OFF" }}
+      </div>
+      <div class="button" @click="tripleButtons">
+        {{ triple ? "Triple: ON" : "Triple: OFF" }}
       </div>
     </div>
     <div class="reset">
@@ -49,6 +51,7 @@ export default {
         [17, 18, 19, 20, 50],
       ],
       double: false,
+      triple: false,
       players: [
         {
           name: "Player 1",
@@ -90,7 +93,6 @@ export default {
     },
     doubleButtons() {
       this.double = !this.double;
-      // If double is on, double the button values
       if (this.double) {
         this.buttons = [
           [1, 2, 3, 4],
@@ -100,7 +102,31 @@ export default {
           [17, 18, 19, 20, 50],
         ];
       } else {
-        // If double is off, reset the button values
+        return;
+      }
+      if (this.double && this.triple) {
+        this.triple = false;
+      }
+    },
+    tripleButtons() {
+      this.triple = !this.triple;
+      if (this.triple) {
+        this.buttons = [
+          [1, 2, 3, 4],
+          [5, 6, 7, 8],
+          [9, 10, 11, 12, 0],
+          [13, 14, 15, 16, 25],
+          [17, 18, 19, 20, 550],
+        ];
+      } else {[
+          [1, 2, 3, 4],
+          [5, 6, 7, 8],
+          [9, 10, 11, 12, 0],
+          [13, 14, 15, 16, 25],
+          [17, 18, 19, 20, 50],]
+      }
+      if (this.triple && this.double) {
+        this.double = false;
       }
     },
     buttonPressed(index) {
@@ -137,6 +163,8 @@ export default {
       });
       this.players.forEach((player) => (player.score = 501));
       this.players.forEach((player) => (player.winner = false));
+      this.triple = false;
+      this.double = false;
     },
   },
 };
