@@ -8,6 +8,9 @@
       <div class="player" v-for="(player, index) in players" :key="index">
         <h1>{{ player.name }}</h1>
         <div class="score">{{ player.score }}</div>
+        <div class="throws">
+          <h2>Throws: {{ player.throws }}</h2>
+        </div>
       </div>
     </div>
     <div class="controls">
@@ -17,8 +20,8 @@
             class="button"
             v-for="button in row"
             :key="button"
-            @click="subtractScore(player, double ? button * 2 : button)">
-            {{ double ? button * 2 : button }}
+            @click="subtractScore(player, button)">
+            {{ button }}
           </div>
         </div>
         <div v-if="player.winner" class="winner-label">Winner!</div>
@@ -26,10 +29,10 @@
     </div>
     <div>
       <div class="button" @click="doubleButtons">
-        {{ double ? "Double: ON" : "Double: OFF" }}
+        {{ double ? "Double:ON" : "Double:OFF" }}
       </div>
       <div class="button" @click="tripleButtons">
-        {{ triple ? "Triple: ON" : "Triple: OFF" }}
+        {{ triple ? "Triple:ON" : "Triple:OFF" }}
       </div>
     </div>
     <div class="reset">
@@ -59,6 +62,7 @@ export default {
           buttonPresses: 0,
           buttonsDisabled: false,
           isCurrentPlayer: true,
+          throws: 0,
         },
         {
           name: "Player 2",
@@ -66,9 +70,11 @@ export default {
           buttonPresses: 0,
           buttonsDisabled: true,
           isCurrentPlayer: false,
+          throws: 0,
         },
       ],
       currentPlayerIndex: 0,
+      showTurnOver: false,
     };
   },
   methods: {
@@ -76,6 +82,7 @@ export default {
       if (player.buttonsDisabled) return;
       let previousScore = player.score;
       player.score -= points;
+      player.throws++;
       player.buttonPresses += 1;
       if (player.buttonPresses >= 3) {
         this.disableButtons(player);
@@ -87,13 +94,24 @@ export default {
       if (player.score == 0) {
         player.winner = true;
       }
-      if (player.buttonPresses === 3) {
-        alert(`${player.name} has made 3 button presses. Next Player begins`);
+      if (player.throws === 3) {
+        player.throws = 0;
+        alert(`${player.name} has made 3 button presses. NEXT PLAYER BEGINS`);
       }
     },
     doubleButtons() {
       this.double = !this.double;
-      if (this.double) {
+      if (this.double == true) {
+        this.buttons = [
+          [2, 4, 6, 8],
+          [10, 12, 14, 16],
+          [18, 20, 22, 24, 0],
+          [26, 28, 30, 32, 25],
+          [34, 36, 38, 40, 50],
+        ];
+      }
+
+      if (this.double == false) {
         this.buttons = [
           [1, 2, 3, 4],
           [5, 6, 7, 8],
@@ -101,8 +119,6 @@ export default {
           [13, 14, 15, 16, 25],
           [17, 18, 19, 20, 50],
         ];
-      } else {
-        return;
       }
       if (this.double && this.triple) {
         this.triple = false;
@@ -110,7 +126,17 @@ export default {
     },
     tripleButtons() {
       this.triple = !this.triple;
-      if (this.triple) {
+      if (this.triple == true) {
+        this.buttons = [
+          [3, 6, 9, 12],
+          [15, 18, 21, 24],
+          [27, 30, 33, 36, 0],
+          [39, 42, 45, 48, 25],
+          [51, 54, 57, 60, 50],
+        ];
+      }
+
+      if (this.triple == false) {
         this.buttons = [
           [1, 2, 3, 4],
           [5, 6, 7, 8],
@@ -118,14 +144,6 @@ export default {
           [13, 14, 15, 16, 25],
           [17, 18, 19, 20, 50],
         ];
-      } else {
-        [
-          [1, 2, 3, 4],
-          [5, 6, 7, 8],
-          [9, 10, 11, 12, 0],
-          [13, 14, 15, 16, 25],
-          [17, 18, 19, 20, 50],
-        ]
       }
       if (this.triple && this.double) {
         this.double = false;
@@ -162,11 +180,19 @@ export default {
         player.score = 0;
         player.buttonPresses = 0;
         player.buttonsDisabled = false;
+        player.throws = 0;
       });
       this.players.forEach((player) => (player.score = 501));
       this.players.forEach((player) => (player.winner = false));
       this.triple = false;
       this.double = false;
+      this.buttons = [
+        [1, 2, 3, 4],
+        [5, 6, 7, 8],
+        [9, 10, 11, 12, 0],
+        [13, 14, 15, 16, 25],
+        [17, 18, 19, 20, 50],
+      ];
     },
   },
 };
