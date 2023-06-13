@@ -8,6 +8,7 @@
       <div class="player" v-for="(player, index) in players" :key="index">
         <h1>{{ player.name }}</h1>
         <div class="score">{{ player.score }}</div>
+        <div class="throws">Throws: {{ player.throws }}/3</div>
       </div>
     </div>
     <div class="controls">
@@ -18,6 +19,7 @@
             v-for="button in row"
             :key="button"
             @click="subtractScore(player, button)"
+            :disabled="player.buttonsDisabled"
           >
             {{ button }}
           </div>
@@ -25,16 +27,20 @@
         <div v-if="player.winner" class="winner-label">Winner!</div>
       </div>
     </div>
-    <div>
-      <div class="button" @click="doubleButtons">
-        {{ double ? "Double:ON" : "Double:OFF" }}
+    <div class="buttons-row">
+      <div class="button" @click="doubleButtons" :class="{ active: double }">
+        Double: {{ double ? "ON" : "OFF" }}
       </div>
-      <div class="button" @click="tripleButtons">
-        {{ triple ? "Triple:ON" : "Triple:OFF" }}
+      <div class="button" @click="tripleButtons" :class="{ active: triple }">
+        Triple: {{ triple ? "ON" : "OFF" }}
       </div>
-    </div>
-    <div class="reset">
-      <div class="button" @click="resetGame()">RESTART</div>
+      <div
+        class="button"
+        @click="resetGame"
+        :disabled="players[currentPlayerIndex].score !== 0"
+      >
+        RESTART
+      </div>
     </div>
   </div>
 </template>
@@ -80,8 +86,8 @@ export default {
       if (player.buttonsDisabled) return;
       let previousScore = player.score;
       player.score -= points;
-      //player.throws++;
       player.buttonPresses += 1;
+      player.throws += 1;
       if (player.buttonPresses >= 3) {
         this.disableButtons(player);
         this.changePlayer();
@@ -159,9 +165,11 @@ export default {
       let current = this.players[this.currentPlayerIndex];
       current.buttonPresses = 0;
       current.buttonsDisabled = false;
+      current.throws = 0; // Reset throws to 0
       let other = this.players[(this.currentPlayerIndex + 1) % 2];
       other.buttonsDisabled = true;
     },
+
     disableButtons(player) {
       player.buttonsDisabled = true;
       if (player.subtractScore <= 3) {
@@ -170,6 +178,8 @@ export default {
     },
 
     resetGame() {
+      const currentPlayer = this.players[this.currentPlayerIndex];
+      if (currentPlayer.score !== 0) return;
       this.currentPlayerIndex = 0;
       this.players.forEach((player) => {
         player.score = 0;
@@ -211,6 +221,14 @@ p {
   justify-content: center;
   height: 100vh;
 }
+.buttons-row {
+  display: flex;
+  justify-content: space-evenly;
+  width: 100%;
+  margin-bottom: 16px;
+  margin: 100px;
+}
+
 .scoreboard {
   display: flex;
   justify-content: space-around;
@@ -248,14 +266,6 @@ p {
   border-radius: 8px;
   color: white;
   cursor: pointer;
-}
-.TESTBUTTON {
-  padding: 20px;
-  margin: 8px;
-  font-size: 24px;
-  color: white;
-  cursor: pointer;
-  background-color: black;
 }
 .button:nth-child(1),
 .button:nth-child(4) {
