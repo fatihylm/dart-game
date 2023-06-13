@@ -8,9 +8,6 @@
       <div class="player" v-for="(player, index) in players" :key="index">
         <h1>{{ player.name }}</h1>
         <div class="score">{{ player.score }}</div>
-        <div class="throws">
-          <h2>Throws: {{ player.throws }}</h2>
-        </div>
       </div>
     </div>
     <div class="controls">
@@ -20,7 +17,8 @@
             class="button"
             v-for="button in row"
             :key="button"
-            @click="subtractScore(player, button)">
+            @click="subtractScore(player, button)"
+          >
             {{ button }}
           </div>
         </div>
@@ -82,21 +80,18 @@ export default {
       if (player.buttonsDisabled) return;
       let previousScore = player.score;
       player.score -= points;
-      player.throws++;
+      //player.throws++;
       player.buttonPresses += 1;
       if (player.buttonPresses >= 3) {
         this.disableButtons(player);
         this.changePlayer();
+        alert(`${player.name} has made 3 button presses. NEXT PLAYER BEGINS`);
       }
       if (player.score > 501 || player.score < 0) {
         player.score = previousScore;
       }
       if (player.score == 0) {
         player.winner = true;
-      }
-      if (player.throws === 3) {
-        player.throws = 0;
-        alert(`${player.name} has made 3 button presses. NEXT PLAYER BEGINS`);
       }
     },
     doubleButtons() {
