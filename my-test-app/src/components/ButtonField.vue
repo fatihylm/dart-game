@@ -1,7 +1,7 @@
 <template>
   <div class="dart-scorer">
     <p>
-      DARTSCORER<br />
+      <br/><br/>DARTSCORER<br />
       PLAYER 1 ALWAYS STARTS
     </p>
     <div class="scoreboard">
