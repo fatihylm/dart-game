@@ -178,9 +178,6 @@ export default {
     },
 
     resetGame() {
-      const currentPlayer = this.players[this.currentPlayerIndex];
-      if (currentPlayer.score !== 0) return;
-      this.currentPlayerIndex = 0;
       this.players.forEach((player) => {
         player.score = 0;
         player.buttonPresses = 0;
